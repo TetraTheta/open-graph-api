@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+import * as cheerio from 'cheerio';
 
 // The documentation said 'fetch()' is available in Edge Serverless Function, but it is not.
 // 'jsdom' is not available in Edge Serverless Function too.
@@ -28,12 +28,12 @@ export async function GET(req: Request) {
     const response = await fetch(url);
     if (!response.ok) throw new Error('Network response was not OK');
     const text = await response.text();
-    const doc = new JSDOM(text).window.document;
+    const $ = cheerio.load(text);
 
     const getMetaContent = (names: string[]) => {
       for (const name of names) {
-        const meta = doc.querySelector(`meta[name="${name}"]`) || doc.querySelector(`meta[property="${name}"]`);
-        if (meta) return meta.getAttribute('content') || '';
+        const meta = $(`meta[name="${name}"]`).attr('content') || $(`meta[property="${name}"]`).attr('content');
+        if (meta) return meta;
       }
       return '';
     };
