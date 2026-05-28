@@ -1,10 +1,6 @@
 import * as cheerio from 'cheerio';
 
-// The documentation said 'fetch()' is available in Edge Serverless Function, but it is not.
-// 'jsdom' is not available in Edge Serverless Function too.
-//export const runtime = 'edge'
-
-const cache = new Map<string, object>();
+export const runtime = 'edge'
 
 export async function GET(req: Request) {
   const allowedOrigin = ['http://localhost:44', 'https://tetralog.onrender.com'];
@@ -15,14 +11,6 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url).searchParams.get('url');
   if (!url) return new Response('Bad Request', { status: 400 });
-  if (cache.has(url)) {
-    return new Response(JSON.stringify(cache.get(url)), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': origin,
-      },
-    });
-  }
 
   try {
     const response = await fetch(url);
@@ -44,12 +32,11 @@ export async function GET(req: Request) {
 
     const ogData = { title, desc, image };
 
-    cache.set(url, ogData);
-
     return new Response(JSON.stringify(ogData), {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': origin,
+        'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=3600' // Cache the response in Vercel Edge
       },
     });
   } catch {
