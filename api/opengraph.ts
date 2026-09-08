@@ -34,7 +34,15 @@ export async function GET(req: Request) {
 
   // 'Origin' is Forbidden Header Name, so it is immutable
   const origin = req.headers.get('origin');
-  if (!origin || !allowedOrigin.includes(origin)) return new Response('Forbidden', { status: 403 });
+  if (!origin || !allowedOrigin.includes(origin)) {
+    return new Response('Forbidden', {
+      status: 403,
+      headers: {
+        'Cache-Control': 'no-store',
+        Vary: 'Origin',
+      },
+    });
+  }
 
   const url = new URL(req.url).searchParams.get('url');
   if (!url) return new Response('Bad Request', { status: 400 });
@@ -57,6 +65,7 @@ export async function GET(req: Request) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': origin,
         'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=3600', // Cache the response in Vercel Edge
+        Vary: 'Origin',
       },
     });
   } catch {

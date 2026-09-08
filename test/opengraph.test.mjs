@@ -31,6 +31,11 @@ async function callOpenGraph(targetUrl) {
 }
 
 async function fetchMockedOpenGraph(targetUrl, html) {
+  const response = await fetchMockedOpenGraphResponse(targetUrl, html);
+  return response.json();
+}
+
+async function fetchMockedOpenGraphResponse(targetUrl, html) {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url) => {
     assert.equal(url, targetUrl);
@@ -40,7 +45,7 @@ async function fetchMockedOpenGraph(targetUrl, html) {
   try {
     const response = await callOpenGraph(targetUrl);
     assert.equal(response.status, 200);
-    return response.json();
+    return response;
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -129,6 +134,19 @@ const otherSiteData = await fetchMockedOpenGraph(
 );
 
 assertEqual('Non-Steam page without meta description', otherSiteData.desc, '');
+
+const corsResponse = await fetchMockedOpenGraphResponse(
+  'https://example.test/cors',
+  '<meta property="og:title" content="CORS cache">',
+);
+
+assertEqual('CORS origin response header', corsResponse.headers.get('Access-Control-Allow-Origin'), ORIGIN);
+assertEqual('CORS cache varies by origin', corsResponse.headers.get('Vary'), 'Origin');
+
+const forbiddenResponse = await GET(new Request('http://localhost/api/opengraph?url=https%3A%2F%2Fexample.test'));
+
+assertEqual('Forbidden response is not cached', forbiddenResponse.headers.get('Cache-Control'), 'no-store');
+assertEqual('Forbidden cache varies by origin', forbiddenResponse.headers.get('Vary'), 'Origin');
 
 if (live) {
   for (const url of liveUrls) {
