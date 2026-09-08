@@ -4,21 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/opengraph.test.mjs",
+    "update": "pnpm dlx npm-check-updates",
+    "upgrade": "pnpm dlx npm-check-updates -u && pnpm install"
   },
   "dependencies": {
     "cheerio": "^1.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.9.5",
-    "eslint": "^10.8.1",
+    "@types/node": "^26.5.0",
+    "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.67.0"
+    "typescript": "^7.0.2",
+    "typescript-eslint": "^8.70.0"
   },
-  "packageManager": "pnpm@11.24.0+sha512.bd27e345e976dcb0be0b7a1228217b049a817e21b1f355c90dbe7dc46671895a8bc1e6d06c24554505ea93ea0b45f489a27ec1bfbc8de6a9659fca0f16fa0000",
+  "packageManager": "pnpm@12.3.4",
   "engines": {
     "npm": "Use pnpm instead of npm."
   }
